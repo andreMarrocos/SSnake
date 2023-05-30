@@ -1,19 +1,10 @@
 import Buttons
 import pygame
 import random
-import tkinter
+from decimal import Decimal
 from pygame.locals import *
 from pygame import mixer
 from tkinter import *
-
-# trabalhando com musica aqui
-#frame = tkinter.Tk()
-#frame.geometry = ("400x600")
-#label_music = tkinter.LabelFrame()
-#label_music.pack(ipady = 300, ipadx=300 )
-#volume_mixer_music = tkinter.Scale(label_music)
-#volume_mixer_music.pack()
-#frame.mainloop()
 
 # Create Game Window
 pygame.init()
@@ -21,7 +12,6 @@ screen_width = 1280
 screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Menu')
-
 
 def on_grid_random():
     x = random.randint(0, 1270)
@@ -48,24 +38,7 @@ def screenText(text, color, x, y, size, style, bold=False, itallic=False):
     screen.blit(screen_text, (x, y))
 
 
-# pause loop
-def pause():
-    screen.fill((0, 0, 0))
-    paused = True
-    pygame.display.set_caption('Paused')
 
-    while paused:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if resume_button.draw(screen):
-                paused = False
-            if options_button.draw(screen):
-                pass
-            if quit_button.draw(screen):
-                pygame.quit()
-        pygame.display.update()
 
 # Variables
 UP = 0
@@ -73,28 +46,28 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 clock = pygame.time.Clock()
-volume = 0.02
+volume = Decimal('0.1')
 
 # load button images
 play_img = pygame.image.load('Images/Play Rect.png').convert_alpha()
 resume_img = pygame.image.load('Images/resume.png').convert_alpha()
 options_img = pygame.image.load('Images/Options Rect.png').convert_alpha()
-bg_img = pygame.image.load('Images/Background.png').convert_alpha()
+bg_img = pygame.image.load('Images/SSnake.png').convert_alpha()
 quit_img = pygame.image.load('Images/Quit Rect.png').convert_alpha()
 up_img = pygame.image.load('Images/up.png').convert_alpha()
 down_img = pygame.image.load('Images/down.png').convert_alpha()
-music_img = pygame.image.load('Images/music.png').convert_alpha()
+volume_img = pygame.image.load('Images/volume.png').convert_alpha()
 return_img = pygame.image.load('Images/return.png').convert_alpha()
 
 # Create button instaces
-play_button = Buttons.Button(550, 200, play_img, 0.4)
-resume_button = Buttons.Button(550, 200, resume_img, 0.4)
-options_button = Buttons.Button(550, 300, options_img, 0.4)
-quit_button = Buttons.Button(550, 400, quit_img, 0.4)
-music_button = Buttons.Button(550, 300, music_img, 0.4)
-return_button = Buttons.Button(550, 400, return_img, 0.4)
-up_button = Buttons.Button(500, 310, up_img, 0.4)
-down_button = Buttons.Button(708, 310, down_img, 0.4)
+play_button = Buttons.Button(350, 550, play_img, 1)
+resume_button = Buttons.Button(350, 550, resume_img, 1)
+options_button = Buttons.Button(550, 550, options_img, 1)
+quit_button = Buttons.Button(750, 550, quit_img, 1)
+volume_button = Buttons.Button(350, 550, volume_img, 1)
+return_button = Buttons.Button(600, 550, return_img, 1)
+up_button = Buttons.Button(200, 540, up_img, 1.3)
+down_button = Buttons.Button(440, 540, down_img, 1.3)
 
 # Music/Sounds
 pygame.mixer.music.set_volume(volume)
@@ -123,8 +96,6 @@ def main_menu():
         options_button.draw(screen)
         quit_button.draw(screen)
 
-        screenText("SSnake", (255, 255, 255), 530, 100, size=50, style="arialblack")
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -141,26 +112,49 @@ def main_menu():
 
 # Options Loop
 def options():
+    global volume
     while True:
         pygame.display.set_caption('Options')
         screen.blit(bg_img, (0, 0))
-        music_button.draw(screen)
+        volume_button.draw(screen)
         return_button.draw(screen)
         up_button.draw(screen)
         down_button.draw(screen)
-        screenText("Options", (255, 255, 255), 530, 100, size=50, style="arialblack")
+        screenText(f"Options", (255, 255, 255), 530, 100, size=50, style="arialblack")
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if up_button.draw(screen):
-                    volume += 0.01
-                if down_button.draw(screen):
-                    volume -= 0.01
+                if up_button.draw(screen) and volume < Decimal('1.0'):
+                    volume = volume + Decimal('0.1')
+                if down_button.draw(screen) and volume > Decimal('0.0'):
+                    volume = volume - Decimal('0.1')
+                round(volume, 1)
+                pygame.mixer.music.set_volume(volume)
+                collision_sound.set_volume(volume)
                 if return_button.draw(screen):
                     main_menu()
+        pygame.display.update()
+
+# pause loop
+def pause():
+    screen.fill((0, 0, 0))
+    paused = True
+    pygame.display.set_caption('Paused')
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if resume_button.draw(screen):
+                paused = False
+            if options_button.draw(screen):
+                pass
+            if quit_button.draw(screen):
+                pygame.quit()
         pygame.display.update()
 
 
